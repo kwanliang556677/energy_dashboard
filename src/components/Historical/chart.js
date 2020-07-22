@@ -77,12 +77,20 @@ export default function CounterDisplay() {
   const [deviceListContext, setDeviceList] = useState(deviceList);
   const classes = useStyles();
 
+  const countRef = useRef(selectedOptionContext);
+  countRef.current = selectedOptionContext;
+
   useEffect(() => {
-    populateDeviceList();
-    //trigger();
-    return () => {
-      
-    };
+    console.log('mount');
+    console.log('selectedOptionDefault : ', countRef.current);
+    const myInterval = setInterval(() => { 
+      console.log(countRef.current);
+        //updateChart(countRef.current['selectedOption']);
+      }, 10000);
+      return () => {
+        console.log("Unmount");
+        clearInterval(myInterval);
+      };
   },[]);
 
   const trigger = () => {
@@ -246,7 +254,7 @@ export default function CounterDisplay() {
       <Backdrop className={classes.backdrop} open={open} >
         <CircularProgress color="inherit" />
       </Backdrop>
-      <HighchartsReact Highcharts={Highcharts} allowChartUpdate={allowUpdate} updateArgs={[true,true,true]} options={dataResultsContext} />
+      <HighchartsReact Highcharts={Highcharts} updateArgs={[true,true,true]} options={dataResultsContext} />
       <HighchartsReact Highcharts={Highcharts} updateArgs={[true,true,true]} options={getChart('column')} />
       <HighchartsReact Highcharts={Highcharts} updateArgs={[true,true,true]} options={getChart('bar')} />
     </div>
