@@ -26,148 +26,39 @@ const optionsSelect = [
   { value: 'PM-5', label: 'PM-5' }
 ];
 
-export default function CounterDisplay() {
-  const {counter, selectedOption, dataResults, deviceList} = useContext(CounterContext);
+export default function Chart(param) {
+  const {counter, selectedOption,selectedOption3, dataResults,dataResults2,dataResults3,dataResults4, deviceList} = useContext(CounterContext);
   const [selectedOptionContext, setSelectedOptionContext] = selectedOption;
+  const [selectedOption3Context, setSelectedOption3Context] = selectedOption3;
   const [dataResultsContext, setDataResultsContext] = dataResults;
+  const [dataResultsContext2, setDataResultsContext2] = dataResults2;
+  const [dataResultsContext3, setDataResultsContext3] = dataResults3;
+  const [dataResultsContext4, setDataResultsContext4] = dataResults4;
   const [counterContext, setCounterContext] = counter;
   const [allowUpdate, setAllowUpdate] = useState(false);
   const [open, setOpen] = useState(false);
   const [deviceListContext, setDeviceList] = useState(deviceList);
   const classes = useStyles();
-
-  const countRef = useRef(selectedOptionContext);
-  countRef.current = selectedOptionContext;
-
-  // useEffect(() => {
-  //   //populateDeviceList();
-  //   console.log('useEffect');
-  //   trigger();
-  //   return () => {
-  //     console.log('useEffectUnMount');
-  //   };
-  // },[]);
-
-    useEffect(() => {
-      console.log('mount');
-      console.log('selectedOptionDefault : ', countRef.current);
-      const myInterval = setInterval(() => { 
-        console.log(countRef.current);
-          //updateChart(countRef.current['selectedOption']);
-        }, 10000);
-        return () => {
-          console.log("Unmount");
-          clearInterval(myInterval);
-        };
-    },[]);
-
-  const parseData = (raw) => {
-    var arr = []
-    Object.keys(raw).forEach(function (key){
-      var j;
-        var jsonObject = {};
-        var data = [];
-        jsonObject.name=key
-        jsonObject.data=data;
-        for(j=0;j<raw[key].length-1;j++){
-          var subData = [];
-          subData.push(new Date(raw[key][j]['timestamp']).getTime());
-          subData.push(raw[key][j]['energy']);
-          data.push(subData);
-        }
-        arr.push(jsonObject);
-     });
-     var fetchOptions = JSON.parse(JSON.stringify(dataResultsContext));
-     fetchOptions.series=arr;
-    return fetchOptions;
-  }
-
-  const toggleLoadingIcon = (param) =>{
-    setOpen(param);
-  }
-
-  const updateChart = (selectedOption) => {
-    setAllowUpdate(false);
-    toggleLoadingIcon(true);
-    var deviceIdListJson = {};
-    var arr = [];
-    if(selectedOption!=null){
-      selectedOption.forEach((item)=>{
-        arr.push(item.value);
-      });
-     // deviceIdListJson.number_record=100;
-      deviceIdListJson.device_id=arr;
-    }
-
-    const requestOptions = {
-      method: 'POST',
-      headers: new Headers({'content-type': 'application/json'}),
-      body: JSON.stringify(deviceIdListJson)
-    };
-  
-    fetch('https://us-central1-iotmqttproject.cloudfunctions.net/PowerMeterEngine', requestOptions)
-      .then(res => res.json())
-      .then(data => parseData(data))
-      .then(data2 =>{ 
-        setDataResultsContext(data2);
-        setAllowUpdate(true);
-        toggleLoadingIcon(false);
-      })
-      .catch(function(e) {
-        console.log(e);
-      }); 
-    }
-
-    const populateDeviceList = () =>{
-      const requestOptions = {
-        method: 'POST',
-        headers: new Headers({'content-type': 'application/json'}),
-        body: JSON.stringify({"type":"getDevices"})
-      };
-    
-      fetch('https://us-central1-iotmqttproject.cloudfunctions.net/PowerMeterEngine', requestOptions)
-        .then(res => res.json())
-        .then(data =>{ 
-          setDeviceList(data);
-        })
-        .catch(function(e) {
-          console.log(e);
-        }); 
-    }
-
-    const handleChange = selectedOption => {
-      console.log(selectedOption);
-      setSelectedOptionContext(selectedOption);
-      console.log(selectedOptionContext)
-      updateChart(selectedOption);
-    };
+  const [chartUpdate, setChartUpdate] = useState(false);
 
     const getChart = (param) =>{
-      var newChart = JSON.parse(JSON.stringify(dataResultsContext));
-      newChart.chart.type=param;
-      console.log(newChart);
-      console.log(dataResultsContext);
+      console.log(param)
+      var newChart= JSON.parse(JSON.stringify(dataResultsContext));
+      if(param.dataType=="pieData"){
+        newChart = JSON.parse(JSON.stringify(dataResultsContext2));
+      }else if(param.dataType=="weeklyData" || param.dataType=="dollarData") {
+       newChart = JSON.parse(JSON.stringify(dataResultsContext3));
+      }
+      newChart.chart.type=param.chartType;
       return newChart;
     };
 
   return (
-    <div>
-       <Grid container spacing={1}>
-          <Grid item xs={12}>
-            <Typography variant="overline" display="block" gutterBottom> Please Select</Typography>
-          </Grid>
-          <Grid item xs={6}>
-            <Select value={selectedOptionContext} onChange={handleChange} isMulti options={optionsSelect}/>
-          </Grid>
-        </Grid>
-      <hr />
+    <div style={{height: "100%"}} >
       <Backdrop className={classes.backdrop} open={open} >
         <CircularProgress color="inherit" />
       </Backdrop>
-      <HighchartsReact Highcharts={Highcharts} updateArgs={[true,true,true]} options={dataResultsContext} />
-      <HighchartsReact Highcharts={Highcharts} updateArgs={[true,true,true]} options={getChart('column')} />
-      <HighchartsReact Highcharts={Highcharts} updateArgs={[true,true,true]} options={getChart('bar')} />
+      <HighchartsReact immutable="true" Highcharts={Highcharts} containerProps={{ className: "highcharts" }} updateArgs={[false,false,false]} options={getChart(param.chartParam)} />
     </div>
-
   );
 }

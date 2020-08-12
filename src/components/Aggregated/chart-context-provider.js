@@ -9,8 +9,9 @@ export const CounterContext = createContext();
 
 
 const optionsDollar ={
-  "chart": {
-    "type": "line"
+  chart: {
+    type: 'line',
+    zoomType: 'x'
   },
   "title": {
     "text": "Electricity Bill Estimate Live Chart"
@@ -77,9 +78,11 @@ const optionsDollar ={
 };
 
 const options ={
-  "chart": {
-    "type": "column"
+  chart: {
+    type: 'line',
+    zoomType: 'x'
   },
+  
   "title": {
     "text": "Energy Consumption Live Chart"
   },
@@ -88,12 +91,15 @@ const options ={
       "format": "{value} KWH"
     }
   },
-  "xAxis": {
-    "type": "datetime",
-    "dateTimeLabelFormats": {
-      "day": "%e of %b"
-    }
+  xAxis: {
+    events: {
+      afterSetExtremes: (e)=>afterSetExtremes(e)
   },
+    type: 'datetime',
+    dateTimeLabelFormats: {
+        day: '%e of %b'
+    }
+},
   plotOptions: {
   	series: {
     	pointWidth: 1,
@@ -143,6 +149,13 @@ const options ={
     }
   ]
 };
+
+function afterSetExtremes(e) {
+  console.log('d')
+  // console.log(e.min);
+  // console.log(e.max);
+}
+
 
 const optionsWeekly ={
   "chart": {

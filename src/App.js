@@ -13,18 +13,28 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import MailIcon from "@material-ui/icons/Mail";
 import MenuIcon from "@material-ui/icons/Menu";
+import FlashOnIcon from '@material-ui/icons/FlashOn';
+import HomeIcon from '@material-ui/icons/Home';
+import InvertColorsIcon from '@material-ui/icons/InvertColors';
+import FireplaceIcon from '@material-ui/icons/Fireplace';
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import { Switch, Route, Link, BrowserRouter } from "react-router-dom";
 import RealTime from './components/RealTime/chart-parent';
-import Historical from './components/Historical/chart-parent';
+import Aggregated from './components/Aggregated/chart-parent';
 import Container from '@material-ui/core/Container';
 import TimelineIcon from '@material-ui/icons/Timeline';
+import WavesIcon from '@material-ui/icons/Waves';
 import HistoryIcon from '@material-ui/icons/History';
 import AssessmentIcon from '@material-ui/icons/Assessment';
-const drawerWidth = 240;
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
+import StarBorder from '@material-ui/icons/StarBorder';
+import Collapse from '@material-ui/core/Collapse';
+import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
 
+const drawerWidth = 240;
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -55,7 +65,10 @@ const useStyles = makeStyles(theme => ({
   content: {
     flexGrow: 1,
     padding: theme.spacing(3)
-  }
+  },
+  nested: {
+    paddingLeft: theme.spacing(4),
+  },
 }));
 
 function ResponsiveDrawer(props) {
@@ -63,23 +76,82 @@ function ResponsiveDrawer(props) {
   const classes = useStyles();
   const theme = useTheme();
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  
+const [open, setOpen] = React.useState(false);
+const [open1, setOpen1] = React.useState(false);
+const [open2, setOpen2] = React.useState(false);
+const [open3, setOpen3] = React.useState(false);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+
+  const handleClick = (index) => {
+    console.log(index);
+    if(index==0){
+      setOpen(!open);
+    }else if (index==1){
+      setOpen1(!open1);
+    }else if (index==2){
+      setOpen2(!open2);
+    }else if (index==3){
+      setOpen3(!open3);
+    }
+  };
+
+  const getOpenIndex = (index) =>{
+    if(index==0){
+      return open;
+    }else if(index==1){
+      return open1;
+    }else if(index==2){
+      return open2;
+    }else if(index==3){
+      return open3;
+    }
+  }
+
+  const getExpandDiv = (index) =>{
+    if(index==0){
+      return open ? <ExpandLess /> : <ExpandMore />;
+    }else if(index==1){
+      return open1 ? <ExpandLess /> : <ExpandMore />;
+    }else if(index==2){
+      return open2 ? <ExpandLess /> : <ExpandMore />;
+    }else if(index==3){
+      return open3 ? <ExpandLess /> : <ExpandMore />;
+    }
+  }
 
   const drawer = (
     <div>
       <div className={classes.toolbar} />
       <Divider />
       <List>
-        {["Real-Time", "Historical", "Aggregated"].map((text, index) => (
-          <ListItem key={text} component={Link} to={"/" + text}>
+        {["Power Meter", "Water Meter", "Heat Meter", "Gas Meter"].map((text, index) => (
+          <div>
+          <ListItem button onClick={()=>handleClick(index)}>
             <ListItemIcon>
-              {index === 0 ? <TimelineIcon /> : index === 1  ? <HistoryIcon /> : <AssessmentIcon />}
+                {index === 0 ? <FlashOnIcon /> : index === 1  ? <InvertColorsIcon /> : index === 2  ? <FireplaceIcon /> : <WavesIcon />}
+            </ListItemIcon>
+            <ListItemText primary={text} />
+            {getExpandDiv(index)}
+         </ListItem>
+        <Collapse in=
+         {getOpenIndex(index)}
+          timeout="auto" unmountOnExit>
+      <List>
+        {["Home", "Historical"].map((text, index) => (
+          <ListItem className={classes.nested} key={text} component={Link} to={"/" + text}>
+            <ListItemIcon>
+              {index === 0 ? <TimelineIcon /> : index === 1  ? <HistoryIcon /> : index === 2  ? <AssessmentIcon /> : <LibraryBooksIcon />}
             </ListItemIcon>
             <ListItemText primary={text} />
           </ListItem>
+        ))}
+      </List>
+        </Collapse>      
+        </div>   
         ))}
       </List>
     </div>
@@ -140,10 +212,9 @@ function ResponsiveDrawer(props) {
         <main className={classes.content}>
           <div className={classes.toolbar} />
           <Switch>
-            <Route exact path="/"  component={RealTime} />
-            <Route path='/Real-Time' component={RealTime} />
-            <Route path="/Historical" component={Historical} />
-            <Route path="/Aggregated" render={() => <div>Aggregated</div>} />
+            <Route exact path="/"  component={Aggregated} />
+            <Route path='/Home' component={RealTime} />
+            <Route path="/Historical" component={Aggregated} />
           </Switch>
         </main>
         </Container>
