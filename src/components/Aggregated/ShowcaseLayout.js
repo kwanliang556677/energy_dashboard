@@ -1,10 +1,9 @@
-import React from "react";
-import PropTypes from "prop-types";
 import _ from "lodash";
+import PropTypes from "prop-types";
+import React from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
+import CardIcon from "./CardIcon";
 import Chart from "./chart";
-import RealTime from "../RealTime/chart-parent";
-import CardIcon from "./CardIcon"
 
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);

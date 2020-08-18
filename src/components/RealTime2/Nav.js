@@ -1,40 +1,42 @@
-import React from "react";
-import PropTypes from "prop-types";
 import AppBar from "@material-ui/core/AppBar";
+import Collapse from '@material-ui/core/Collapse';
+import Container from '@material-ui/core/Container';
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Divider from "@material-ui/core/Divider";
 import Drawer from "@material-ui/core/Drawer";
 import Hidden from "@material-ui/core/Hidden";
 import IconButton from "@material-ui/core/IconButton";
-import InboxIcon from "@material-ui/icons/MoveToInbox";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import MailIcon from "@material-ui/icons/Mail";
-import MenuIcon from "@material-ui/icons/Menu";
-import FlashOnIcon from '@material-ui/icons/FlashOn';
-import HomeIcon from '@material-ui/icons/Home';
-import InvertColorsIcon from '@material-ui/icons/InvertColors';
-import FireplaceIcon from '@material-ui/icons/Fireplace';
+import { makeStyles, useTheme } from "@material-ui/core/styles";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
-import { Switch, Route, Link, BrowserRouter } from "react-router-dom";
-import RealTime from './components/RealTime/chart-parent';
-import Aggregated from './components/Aggregated/chart-parent';
-import Container from '@material-ui/core/Container';
-import TimelineIcon from '@material-ui/icons/Timeline';
-import WavesIcon from '@material-ui/icons/Waves';
-import HistoryIcon from '@material-ui/icons/History';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
-import StarBorder from '@material-ui/icons/StarBorder';
-import Collapse from '@material-ui/core/Collapse';
+import FireplaceIcon from '@material-ui/icons/Fireplace';
+import FlashOnIcon from '@material-ui/icons/FlashOn';
+import HistoryIcon from '@material-ui/icons/History';
+import InvertColorsIcon from '@material-ui/icons/InvertColors';
 import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
-
+import MenuIcon from "@material-ui/icons/Menu";
+import TimelineIcon from '@material-ui/icons/Timeline';
+import WavesIcon from '@material-ui/icons/Waves';
+import PropTypes from "prop-types";
+import React from "react";
+import { BrowserRouter, Link } from "react-router-dom";
+import { EnergyContextProvider } from "./chart-context-provider";
+import ChartLayout from "./ExampleLayout";
+import FilterPanel from "./filter-panel";
+import { FilterContextProvider } from "./filter-provider";
+import { Button, TextField } from '@material-ui/core';
 const drawerWidth = 240;
+
+const AppRender = () =>{
+  console.log('app render');
+}
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -81,6 +83,7 @@ const [open, setOpen] = React.useState(false);
 const [open1, setOpen1] = React.useState(false);
 const [open2, setOpen2] = React.useState(false);
 const [open3, setOpen3] = React.useState(false);
+
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -142,7 +145,7 @@ const [open3, setOpen3] = React.useState(false);
           timeout="auto" unmountOnExit>
       <List>
         {["Home", "Historical"].map((text, index) => (
-          <ListItem className={classes.nested} key={text} component={Link} to={"/" + text}>
+          <ListItem className={classes.nested} key={text} component={Link} to={"/" + text + "/"}>
             <ListItemIcon>
               {index === 0 ? <TimelineIcon /> : index === 1  ? <HistoryIcon /> : index === 2  ? <AssessmentIcon /> : <LibraryBooksIcon />}
             </ListItemIcon>
@@ -159,6 +162,7 @@ const [open3, setOpen3] = React.useState(false);
 
   return (
     <div className={classes.root}>
+      {AppRender()}
       <CssBaseline />
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
@@ -176,7 +180,7 @@ const [open3, setOpen3] = React.useState(false);
           </Typography>
         </Toolbar>
       </AppBar>
-      <BrowserRouter>
+
         <nav className={classes.drawer} aria-label="mailbox folders">
           {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
           <Hidden smUp implementation="css">
@@ -211,17 +215,25 @@ const [open3, setOpen3] = React.useState(false);
         <Container maxWidth="lg">
         <main className={classes.content}>
           <div className={classes.toolbar} />
-          <Switch>
-            <Route exact path="/"  component={Aggregated} />
-            <Route path='/Home' component={RealTime} />
-            <Route path="/Historical" component={Aggregated} />
-          </Switch>
+          <RouteParser name="test" />
         </main>
         </Container>
-      </BrowserRouter>
+
     </div>
   );
 }
+
+const RouteParser = React.memo(props => {
+  console.log("Greeting Comp render");
+  return            <EnergyContextProvider>
+  <h3>Real Time Chart</h3>
+  <FilterContextProvider>
+    <FilterPanel />
+  </FilterContextProvider>
+  <ChartLayout />
+</EnergyContextProvider>;
+});
+
 
 ResponsiveDrawer.propTypes = {
   /**

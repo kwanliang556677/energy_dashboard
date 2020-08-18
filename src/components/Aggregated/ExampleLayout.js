@@ -1,12 +1,5 @@
-import ReactDOM from "react-dom";
+import React from "react";
 import ShowcaseLayout from "./ShowcaseLayout";
-import React, { useContext, useEffect } from "react";
-import Chart from "./chart";
-
-const rend = () =>{
-  console.log('exampleLayout');
-}
-
 
 export default class ExampleLayout extends React.Component {
   constructor(props) {
@@ -38,7 +31,6 @@ export default class ExampleLayout extends React.Component {
           Displayed as <code>[x, y, w, h]</code>:
           <div className="columns">{this.stringifyLayout()}</div>
         </div> */}
-        {rend()}
         <ShowcaseLayout onLayoutChange={this.onLayoutChange} />
       </div>
     );

@@ -32,14 +32,10 @@ const useStyles = makeStyles((theme) => ({
 
 export default function FilterPanel() {
   const {timeSeriesState, pieChartResultState, weeklyResultState, greenHouseState}  = useContext(EnergyContext);
-  const {deviceState, reportState, floorLevelState,  startDate, endDate, 
-    deviceList, reportList, levelList} = useContext(FilterContext);
+  const {deviceState, floorLevelState, deviceList, levelList} = useContext(FilterContext);
 
   const [deviceContext, setdeviceContext] = deviceState;
-  const [reportContext, setreportContext] = reportState;
   const [floorLevelContext, setfloorLevelContext] = floorLevelState;
-  const [startDateContext, setStartDateContext] = startDate;
-  const [endDateContext, setEndDateContext] = endDate;
 
   const [timeSeriesContext, settimeSeriesContext] = timeSeriesState;
   const [pieChartContext, setpieChartContext] = pieChartResultState;
@@ -47,20 +43,28 @@ export default function FilterPanel() {
   const [greenHouseContext, setgreenHouseContext] = greenHouseState;
 
   const [deviceListContext, setDeviceList] = useState(deviceList);
-  const [reportListContext, setReportList] = useState(reportList);
   const [levelListContext, setLevelList] = useState(levelList);
 
   const [allowUpdate, setAllowUpdate] = useState(false);
   const [open, setOpen] = useState(false);
   const classes = useStyles();
-  const countRef = useRef(deviceContext);
-  countRef.current = deviceContext;
+  const deviceRef = useRef(deviceContext);
+  const floorLevelRef = useRef(floorLevelContext);
+  deviceRef.current = deviceContext;
+  floorLevelRef.current = floorLevelContext;
 
-    useEffect(() => {
-      console.log('useEffect-filter-panel');
-      populateDeviceList();
-      updateChart(startDateContext, endDateContext, deviceContext, reportContext, floorLevelContext);
-    },[]);
+  useEffect(() => {
+    populateDeviceList();
+    updateChart(deviceRef.current, floorLevelRef.current);
+    const myInterval = setInterval(() => { 
+      console.log(deviceRef.current);
+        updateChart(deviceRef.current, floorLevelRef.current);
+      }, 100000);     
+      return () => {
+        console.log("Unmount");
+        clearInterval(myInterval);
+      };
+  },[]);
 
     const parseData = (data, chartOption) => {
       console.log('test3', data);
@@ -73,7 +77,7 @@ export default function FilterPanel() {
     setOpen(param);
   }
 
-  const updateChart = (startDate, endDate, device, report, floorLevel) => {
+  const updateChart = (device, floorLevel) => {
     console.log('updating chart!!')
     setAllowUpdate(false);
     toggleLoadingIcon(true);
@@ -93,9 +97,6 @@ export default function FilterPanel() {
       });
       deviceIdListJson.floorLevel=floorLevelArr;
     }
-     // deviceIdListJson.number_record=100;
-     deviceIdListJson.startDatetime=startDate;
-     deviceIdListJson.endDatetime=endDate;
      deviceIdListJson.limit=500;
 
     const requestOptions = {
@@ -104,13 +105,8 @@ export default function FilterPanel() {
       body: JSON.stringify(deviceIdListJson)
     };
 
-    var energyUrl = '';
-    if(report.value=="Custom" || report==null){
-      energyUrl = "https://powermeter-api-ewhwbw5mva-uc.a.run.app/get_energy_trend";
-    }else{
-      energyUrl = "https://powermeter-api-ewhwbw5mva-uc.a.run.app/get_aggregated_energy";
-    }
-  
+    var energyUrl = 'https://powermeter-api-ewhwbw5mva-uc.a.run.app/get_energy_trend';
+    
     fetch(energyUrl, requestOptions)
       .then(res => res.json())
       .then(data => parseData(data, timeSeriesContext))
@@ -159,7 +155,7 @@ export default function FilterPanel() {
         .then(res => res.json())
         .then(data =>{
           setDeviceList(data);
-          setReportList(reportList[0]);
+         
           setLevelList(levelList[0]);
         })
         .catch(function(e) {
@@ -171,19 +167,12 @@ export default function FilterPanel() {
       setdeviceContext(device);
     };
 
-    const handleReportChange = device => {
-      setreportContext(device);
-    };
 
     const handleFloorChange = device => {
       setfloorLevelContext(device);
     };
 
-    const handleDateChange = (startDate, endDate) => {
-      console.log('startDate')
-      setStartDateContext(startDate);
-      setEndDateContext(endDate);
-    };
+
 
   return (
     <div>
@@ -191,13 +180,6 @@ export default function FilterPanel() {
         <CircularProgress color="inherit" />
       </Backdrop>
        <Grid container spacing={1}>
-          <Grid item xs={12}>
-            <DateFilter startDate={startDateContext} endDate={endDateContext} handler={handleDateChange}/>
-          </Grid>
-          <Grid item xs={6}>
-          Please select Report Type:
-          <Select value={reportContext} onChange={handleReportChange} options={reportListContext}/>
-          </Grid>
           <Grid item xs={6}>
             Please select Floor Level:
             <Select value={floorLevelContext} onChange={handleFloorChange} isMulti options={levelListContext}/>
@@ -208,7 +190,7 @@ export default function FilterPanel() {
           </Grid>
           <Box display="flex" alignItems="flex-end" paddingBottom="4px">
             <Grid item xs={6} className="btn">
-              <Button onClick={()=>updateChart(startDateContext, endDateContext, deviceContext, reportContext, floorLevelContext)} variant="contained" color="primary">
+              <Button onClick={()=>updateChart(deviceContext, floorLevelContext)} variant="contained" color="primary">
                 Search
               </Button>
             </Grid>

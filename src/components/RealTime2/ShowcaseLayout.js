@@ -1,8 +1,17 @@
-import React from "react";
-import PropTypes from "prop-types";
 import _ from "lodash";
+import PropTypes from "prop-types";
+import React from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
+import CardIcon from "./CardIcon";
+import Chart from "./chart";
+
+
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
+
+const rend = () =>{
+  console.log('showcaselayout');
+}
+
 
 export default class ShowcaseLayout extends React.Component {
   constructor(props) {
@@ -18,6 +27,7 @@ export default class ShowcaseLayout extends React.Component {
     this.onCompactTypeChange = this.onCompactTypeChange.bind(this);
     this.onLayoutChange = this.onLayoutChange.bind(this);
     this.onNewLayout = this.onNewLayout.bind(this);
+    this.generateDOM = this.generateDOM.bind(this);
   }
 
   componentDidMount() {
@@ -27,16 +37,11 @@ export default class ShowcaseLayout extends React.Component {
   generateDOM() {
     return _.map(this.state.layouts.lg, function(l, i) {
       return (
-        <div key={i} className={l.static ? "static" : ""}>
-          {l.static ? (
-            <span
-              className="text"
-              title="This item is static and cannot be removed or resized."
-            >
-              Static - {i}
-            </span>
+        <div key={i}>
+          {l.iconCard ? (
+           <div style={{height: "100%"}}><CardIcon /></div>
           ) : (
-            <span className="text">{i}</span>
+            <div style={{height: "100%"}}><Chart chartParam={l}/></div>
           )}
         </div>
       );
@@ -61,6 +66,7 @@ export default class ShowcaseLayout extends React.Component {
   }
 
   onLayoutChange(layout, layouts) {
+    console.log('LayoutChanged!');
     this.props.onLayoutChange(layout, layouts);
   }
 
@@ -73,7 +79,8 @@ export default class ShowcaseLayout extends React.Component {
   render() {
     return (
       <div>
-        <div>
+        {rend()}
+        {/* <div>
           Current Breakpoint: {this.state.currentBreakpoint} ({
             this.props.cols[this.state.currentBreakpoint]
           }{" "}
@@ -86,7 +93,7 @@ export default class ShowcaseLayout extends React.Component {
         <button onClick={this.onNewLayout}>Generate New Layout</button>
         <button onClick={this.onCompactTypeChange}>
           Change Compaction Type
-        </button>
+        </button> */}
         <ResponsiveReactGridLayout
           {...this.props}
           layouts={this.state.layouts}
@@ -120,15 +127,27 @@ ShowcaseLayout.defaultProps = {
 };
 
 function generateLayout() {
-  return _.map(_.range(0, 25), function(item, i) {
+  return _.map(_.range(0, 6), function(item, i) {
     var y = Math.ceil(Math.random() * 4) + 1;
+    var chartType=["line","column","column","column","line","pie"];
+    var xCoordinate=0;
+    var iconCard = false;
+    var dataType = ["lineData","columnData","weeklyData","weeklyData","dollarData","pieData"];
+    if(i%2!=0){
+      xCoordinate=3;
+    }
+    if(i==2){
+      iconCard = true;
+    }
     return {
-      x: (_.random(0, 5) * 2) % 12,
-      y: Math.floor(i / 6) * y,
-      w: 2,
-      h: y,
+      x: xCoordinate,
+      y: 2,
+      w: 3,
+      h: 8,
       i: i.toString(),
-      static: Math.random() < 0.05
+      chartType : chartType[i],
+      iconCard: iconCard,
+      dataType : dataType[i]
     };
   });
 }
